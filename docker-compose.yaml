@@ -231,33 +231,7 @@ services:
       retries: 3
       start_period: 40s
 
-  # ============================================================================
-  # REVERSE PROXY
-  # ============================================================================
 
-  # Nginx reverse proxy
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx-proxy
-    hostname: nginx-proxy
-    ports:
-      - "8080:8080"  # Evolution API
-      - "8081:8081"  # Chatwoot
-      - "8082:8082"  # PgAdmin
-    networks:
-      - whatsapp-network
-    depends_on:
-      - evolution-api
-      - chatwoot-rails
-      - pgadmin
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 # ============================================================================
 # NETWORKS
