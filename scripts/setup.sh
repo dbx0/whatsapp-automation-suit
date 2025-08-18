@@ -251,12 +251,27 @@ DATABASE_PROVIDER=postgresql' evolution-api/.env
         sed -i.bak "s/GENERATE_YOUR_API_KEY_HERE/$API_KEY/" evolution-api/.env
     fi
     
-    # Substituir variáveis de porta dinâmicas
+    # Configurar IP externo e porta para Evolution API
+    echo ""
+    print_message "Configuração do Evolution API:"
+    echo "Digite o IP externo ou domínio para o Evolution API"
+    echo "Exemplo: 10.250.48.43 ou meu-dominio.com"
+    read -p "IP/Domínio externo (deixe em branco para localhost): " EXTERNAL_IP
+    EXTERNAL_IP=${EXTERNAL_IP:-localhost}
+    
+    # Determinar a porta a ser usada
     if [ -n "$PORT_EVOLUTION_API" ]; then
-        print_message "Configurando porta dinâmica para Evolution API: $PORT_EVOLUTION_API"
-        sed -i.bak "s|http://localhost:\${PORT_EVOLUTION_API:-3005}|http://localhost:$PORT_EVOLUTION_API|g" evolution-api/.env
-        sed -i.bak "s|SERVER_PORT=\${PORT_EVOLUTION_API:-3005}|SERVER_PORT=$PORT_EVOLUTION_API|g" evolution-api/.env
+        EVOLUTION_PORT=$PORT_EVOLUTION_API
+        print_message "Usando porta dinâmica: $EVOLUTION_PORT"
+    else
+        EVOLUTION_PORT=8080
+        print_message "Usando porta padrão: $EVOLUTION_PORT"
     fi
+    
+    # Substituir SERVER_URL com IP externo e porta
+    sed -i.bak "s|http://\${EXTERNAL_IP:-localhost}:\${PORT_EVOLUTION_API:-8080}|http://$EXTERNAL_IP:$EVOLUTION_PORT|g" evolution-api/.env
+    
+    print_message "Evolution API configurado para: http://$EXTERNAL_IP:$EVOLUTION_PORT"
     
     print_message "Evolution API configurada!"
 }
