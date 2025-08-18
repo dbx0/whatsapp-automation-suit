@@ -293,6 +293,35 @@ docker-compose exec -T postgres-chatwoot psql -U postgres chatwoot < backup_chat
 docker-compose exec -T postgres-evolution psql -U postgres evolution < backup_evolution.sql
 ```
 
+### Remoção Completa (Purge)
+
+⚠️ **ATENÇÃO**: O script de purge remove **PERMANENTEMENTE** todos os dados!
+
+```bash
+./scripts/purge.sh
+```
+
+**O que o script de purge remove:**
+- ✅ Todos os containers Docker
+- ✅ Todos os volumes de dados
+- ✅ Todos os arquivos de configuração (.env)
+- ✅ Todos os logs
+- ✅ Todas as imagens Docker
+- ✅ Todas as redes Docker
+- ✅ Todos os diretórios de dados
+- ✅ Todos os arquivos temporários
+
+**Confirmação dupla de segurança:**
+O script requer duas confirmações:
+1. Digite `PURGE` para confirmar
+2. Digite `CONFIRMO` para finalizar
+
+**Após o purge:**
+```bash
+# Para reinstalar limpo
+./scripts/deploy.sh
+```
+
 ## 🐛 Solução de Problemas
 
 ### Problemas Comuns
