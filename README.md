@@ -70,6 +70,34 @@ nano .env
 nano evolution-api/.env
 ```
 
+### 2.1. Configure o range de portas (Opcional)
+
+O sistema permite configurar um range personalizado de portas para evitar conflitos. Por exemplo, para usar o range 7000-7999:
+
+```bash
+# Usando o script automatizado (recomendado)
+./scripts/setup-ports.sh 7000
+
+# Ou manualmente editando o .env
+echo "PORT_RANGE_BASE=7000" >> .env
+```
+
+**Mapeamento de portas com PORT_RANGE_BASE=7000:**
+- Chatwoot Rails: 7000
+- PostgreSQL Chatwoot: 7001
+- PostgreSQL Evolution: 7002
+- Redis Chatwoot: 7003
+- Redis Evolution: 7004
+- Evolution API: 7005
+- PgAdmin: 7006
+- n8n: 7007
+
+**URLs de acesso com range 7000:**
+- Evolution API Manager: http://localhost:7005/manager
+- Chatwoot: http://localhost:7000
+- n8n Automation: http://localhost:7007
+- PgAdmin: http://localhost:7006
+
 ### 3. Gere as chaves de segurança
 
 **Para Chatwoot (SECRET_KEY_BASE):**
@@ -113,10 +141,19 @@ docker-compose run --rm rails bundle exec rails db:chatwoot_prepare
 
 Após a instalação, você pode acessar:
 
-- **Evolution API Manager**: http://localhost:8080/manager
-- **Chatwoot**: http://localhost:8081
-- **n8n Automation**: http://localhost:5678
-- **PgAdmin**: http://localhost:8082
+**Portas padrão (PORT_RANGE_BASE=3000):**
+- **Evolution API Manager**: http://localhost:3005/manager
+- **Chatwoot**: http://localhost:3000
+- **n8n Automation**: http://localhost:3007
+- **PgAdmin**: http://localhost:3006
+
+**Se você configurou um range personalizado (ex: PORT_RANGE_BASE=7000):**
+- **Evolution API Manager**: http://localhost:7005/manager
+- **Chatwoot**: http://localhost:7000
+- **n8n Automation**: http://localhost:7007
+- **PgAdmin**: http://localhost:7006
+
+> 💡 **Dica**: Execute `./scripts/setup-ports.sh` para ver o mapeamento atual de portas.
 
 ### Credenciais padrão:
 **PgAdmin:**
@@ -131,13 +168,13 @@ Após a instalação, você pode acessar:
 
 ### Evolution API
 
-1. Acesse o manager em http://localhost:8080/manager
+1. Acesse o manager em http://localhost:3005/manager (ou porta configurada)
 2. Crie uma nova instância
 3. Configure a integração com Chatwoot
 
 ### Chatwoot
 
-1. Acesse http://localhost:8081
+1. Acesse http://localhost:3000 (ou porta configurada)
 2. Crie sua conta de administrador
 3. Configure um inbox para API
 4. Use as configurações fornecidas pela Evolution API
@@ -145,7 +182,7 @@ Após a instalação, você pode acessar:
 ### n8n (Automação Visual)
 
 #### Se instalado localmente:
-1. Acesse http://localhost:5678
+1. Acesse http://localhost:3007 (ou porta configurada)
 2. Faça login com as credenciais padrão
 3. Configure as credenciais da Evolution API
 4. Crie seus primeiros fluxos de automação
