@@ -251,6 +251,13 @@ DATABASE_PROVIDER=postgresql' evolution-api/.env
         sed -i.bak "s/GENERATE_YOUR_API_KEY_HERE/$API_KEY/" evolution-api/.env
     fi
     
+    # Substituir variáveis de porta dinâmicas
+    if [ -n "$PORT_EVOLUTION_API" ]; then
+        print_message "Configurando porta dinâmica para Evolution API: $PORT_EVOLUTION_API"
+        sed -i.bak "s|http://localhost:\${PORT_EVOLUTION_API:-3005}|http://localhost:$PORT_EVOLUTION_API|g" evolution-api/.env
+        sed -i.bak "s|SERVER_PORT=\${PORT_EVOLUTION_API:-3005}|SERVER_PORT=$PORT_EVOLUTION_API|g" evolution-api/.env
+    fi
+    
     print_message "Evolution API configurada!"
 }
 
