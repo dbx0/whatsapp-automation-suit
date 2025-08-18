@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ============================================================================
   # CHATWOOT SERVICES
@@ -26,7 +24,7 @@ services:
     container_name: chatwoot-rails
     hostname: chatwoot-rails
     ports:
-      - "${PORT_RANGE_BASE:-3000}:3000"
+      - "${PORT_CHATWOOT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production
@@ -66,7 +64,7 @@ services:
     container_name: postgres-chatwoot
     hostname: postgres-chatwoot
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 1)):5432"
+      - "${PORT_POSTGRES_CHATWOOT:-3001}:5432"
     restart: always
     volumes:
       - ./database/chatwoot/postgres:/var/lib/postgresql/data
@@ -90,7 +88,7 @@ services:
     container_name: postgres-evolution
     hostname: postgres-evolution
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 2)):5432"
+      - "${PORT_POSTGRES_EVOLUTION:-3002}:5432"
     restart: always
     volumes:
       - ./database/evolution/postgres:/var/lib/postgresql/data
@@ -118,7 +116,7 @@ services:
     container_name: redis-chatwoot
     hostname: redis-chatwoot
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 3)):6379"
+      - "${PORT_REDIS_CHATWOOT:-3003}:6379"
     restart: always
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-redis_secure_password}", "--appendonly", "yes"]
     volumes:
@@ -137,7 +135,7 @@ services:
     container_name: redis-evolution
     hostname: redis-evolution
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 4)):6379"
+      - "${PORT_REDIS_EVOLUTION:-3004}:6379"
     restart: always
     command: ["redis-server", "--appendonly", "yes", "--port", "6379"]
     env_file:
@@ -161,7 +159,7 @@ services:
     container_name: evolution-api
     hostname: evolution-api
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 5)):8080"
+      - "${PORT_EVOLUTION_API:-3005}:8080"
     volumes:
       - ./evolution-api/evolution_instances:/evolution/instances
       - ./evolution-api/logs:/evolution/logs
@@ -190,7 +188,7 @@ services:
     container_name: pgadmin
     hostname: pgadmin
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 6)):80"
+      - "${PORT_PGADMIN:-3006}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
@@ -220,7 +218,7 @@ services:
     profiles:
       - n8n
     ports:
-      - "$((${PORT_RANGE_BASE:-3000} + 7)):5678"
+      - "${PORT_N8N:-3007}:5678"
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin

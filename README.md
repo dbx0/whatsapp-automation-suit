@@ -76,7 +76,7 @@ O sistema permite configurar um range personalizado de portas para evitar confli
 
 ```bash
 # Usando o script automatizado (recomendado)
-./scripts/setup-ports.sh 7000
+./scripts/setup.sh 7000
 
 # Ou manualmente editando o .env
 echo "PORT_RANGE_BASE=7000" >> .env
@@ -153,7 +153,7 @@ Após a instalação, você pode acessar:
 - **n8n Automation**: http://localhost:7007
 - **PgAdmin**: http://localhost:7006
 
-> 💡 **Dica**: Execute `./scripts/setup-ports.sh` para ver o mapeamento atual de portas.
+> 💡 **Dica**: Execute `./scripts/setup.sh` para reconfigurar as portas.
 
 ### Credenciais padrão:
 **PgAdmin:**

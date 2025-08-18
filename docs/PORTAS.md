@@ -60,17 +60,17 @@ PORT_RANGE_BASE=8000
 
 ### Usando o Script
 
-O script `setup-ports.sh` facilita a configuração:
+O script `setup.sh` facilita a configuração:
 
 ```bash
 # Configurar range 7000-7007
-./scripts/setup-ports.sh 7000
+./scripts/setup.sh 7000
 
 # Configurar range 8000-8007
-./scripts/setup-ports.sh 8000
+./scripts/setup.sh 8000
 
 # Executar interativamente
-./scripts/setup-ports.sh
+./scripts/setup.sh
 ```
 
 ### Configuração Manual
@@ -95,7 +95,7 @@ docker-compose up -d
 
 ### Verificar Mapeamento Atual
 ```bash
-./scripts/setup-ports.sh
+./scripts/setup.sh
 ```
 
 ### Verificar Portas em Uso
@@ -129,7 +129,7 @@ kill -9 <PID>
 
 2. **Usar um range diferente:**
 ```bash
-./scripts/setup-ports.sh 8000
+./scripts/setup.sh 8000
 ```
 
 ### Containers Não Iniciam
@@ -175,7 +175,7 @@ docker-compose down
 
 2. **Atualizar configuração:**
 ```bash
-./scripts/setup-ports.sh 8000
+./scripts/setup.sh 8000
 ```
 
 3. **Reiniciar:**
