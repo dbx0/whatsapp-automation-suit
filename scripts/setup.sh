@@ -227,6 +227,33 @@ generate_security_keys() {
     fi
 }
 
+# Configurar Evolution API
+configure_evolution_api() {
+    print_message "Configurando Evolution API..."
+    
+    # Verificar se o arquivo .env existe
+    if [ ! -f "evolution-api/.env" ]; then
+        print_warning "Arquivo evolution-api/.env não encontrado. Copiando de env.example..."
+        cp evolution-api/env.example evolution-api/.env
+    fi
+    
+    # Adicionar DATABASE_PROVIDER se não existir
+    if ! grep -q "DATABASE_PROVIDER" evolution-api/.env; then
+        print_message "Adicionando DATABASE_PROVIDER=postgresql..."
+        sed -i.bak '/DATABASE_CONNECTION_LIMIT=10/a\
+DATABASE_PROVIDER=postgresql' evolution-api/.env
+    fi
+    
+    # Verificar se AUTHENTICATION_API_KEY está configurada
+    if grep -q "GENERATE_YOUR_API_KEY_HERE" evolution-api/.env; then
+        print_message "Gerando AUTHENTICATION_API_KEY..."
+        API_KEY=$(uuidgen)
+        sed -i.bak "s/GENERATE_YOUR_API_KEY_HERE/$API_KEY/" evolution-api/.env
+    fi
+    
+    print_message "Evolution API configurada!"
+}
+
 # Configurar n8n
 configure_n8n() {
     print_message "Configurando n8n..."
@@ -325,12 +352,70 @@ setup_chatwoot_database() {
     
     # Aguardar o PostgreSQL estar pronto
     print_message "Aguardando PostgreSQL estar pronto..."
-    sleep 30
+    
+    # Aguardar até 2 minutos para o PostgreSQL estar pronto
+    local max_attempts=24
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        if docker-compose exec -T postgres-chatwoot pg_isready -U postgres -d chatwoot >/dev/null 2>&1; then
+            print_message "PostgreSQL está pronto!"
+            break
+        fi
+        
+        print_message "Tentativa $attempt/$max_attempts - PostgreSQL ainda não está pronto..."
+        sleep 5
+        attempt=$((attempt + 1))
+    done
+    
+    if [ $attempt -gt $max_attempts ]; then
+        print_error "PostgreSQL não ficou pronto no tempo esperado. Verifique os logs."
+        return 1
+    fi
+    
+    # Aguardar mais alguns segundos para garantir estabilidade
+    sleep 10
     
     # Executar migração do banco
-    docker-compose run --rm chatwoot-rails bundle exec rails db:chatwoot_prepare
+    print_message "Executando migração do banco de dados..."
+    if docker-compose run --rm chatwoot-rails bundle exec rails db:chatwoot_prepare; then
+        print_message "Banco de dados do Chatwoot configurado!"
+    else
+        print_error "Erro ao configurar banco de dados do Chatwoot. Verifique os logs."
+        return 1
+    fi
+}
+
+# Verificar saúde dos serviços
+verify_services_health() {
+    print_message "Verificando saúde dos serviços..."
     
-    print_message "Banco de dados do Chatwoot configurado!"
+    # Aguardar um pouco para os serviços estabilizarem
+    sleep 30
+    
+    local services=("postgres-chatwoot" "postgres-evolution" "redis-chatwoot" "redis-evolution" "evolution-api" "chatwoot-rails" "chatwoot-sidekiq")
+    local failed_services=()
+    
+    for service in "${services[@]}"; do
+        if docker-compose ps | grep -q "$service.*Up"; then
+            print_message "✓ $service está rodando"
+        else
+            print_warning "✗ $service não está rodando corretamente"
+            failed_services+=("$service")
+        fi
+    done
+    
+    if [ ${#failed_services[@]} -gt 0 ]; then
+        print_warning "Alguns serviços não estão rodando corretamente:"
+        for service in "${failed_services[@]}"; do
+            echo "  - $service"
+        done
+        echo ""
+        print_message "Para ver logs de um serviço específico:"
+        echo "  docker-compose logs $service"
+    else
+        print_message "Todos os serviços estão rodando corretamente!"
+    fi
 }
 
 # Mostrar informações finais
@@ -387,6 +472,9 @@ show_final_info() {
     echo "  docker-compose down"
     echo ""
     
+    # Verificar status dos serviços
+    verify_services_health
+    
     # Limpar arquivo temporário
     rm -f .port_base
 }
@@ -399,6 +487,7 @@ main() {
     check_config_files
     configure_port_range "$@"
     generate_security_keys
+    configure_evolution_api
     configure_n8n
     create_directories
     check_permissions
