@@ -8,20 +8,20 @@ Este projeto integra a Evolution API (para automação do WhatsApp) com o Chatwo
 
 ### 🚀 Funcionalidades
 
-- **Evolution API v2.2.0**: API para automação do WhatsApp
-- **Chatwoot v4.0.4**: Plataforma de atendimento ao cliente
+- **Evolution API v2.2.3**: API para automação do WhatsApp
+- **Chatwoot v4.5.0**: Plataforma de atendimento ao cliente
 - **n8n**: Plataforma de automação visual (sem código)
-- **PostgreSQL 16**: Banco de dados principal
+- **PostgreSQL 16**: Banco de dados principal (com pgvector para Chatwoot)
 - **Redis 7.2**: Cache e sessões
-- **Nginx 1.25**: Proxy reverso e balanceamento de carga
 - **PgAdmin 8.5**: Interface web para administração do PostgreSQL
 
 ## 🏗️ Arquitetura
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Nginx Proxy   │    │   Evolution     │    │    Chatwoot     │
-│   (Port 8080)   │◄──►│   API (Port)    │    │   (Port 8081)   │
+│   Evolution     │    │    Chatwoot     │    │      n8n        │
+│   API v2.2.3    │◄──►│   v4.5.0        │    │  Automation     │
+│   (Port 3005)   │    │   (Port 3000)   │    │  (Port 3007)    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          └───────────────────────┼───────────────────────┘
@@ -30,15 +30,9 @@ Este projeto integra a Evolution API (para automação do WhatsApp) com o Chatwo
          │                       │                       │
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   PostgreSQL    │    │     Redis       │    │    PgAdmin      │
-│   (Database)    │    │   (Cache)       │    │   (Port 8082)   │
+│   16 + pgvector │    │     7.2         │    │     8.5         │
+│   (Port 3001)   │    │   (Port 3003)   │    │   (Port 3006)   │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                                 │
-                                 │
-                    ┌─────────────────┐
-                    │      n8n        │
-                    │  (Port 5678)    │
-                    │  Automation     │
-                    └─────────────────┘
 ```
 
 ## 📦 Pré-requisitos
