@@ -287,34 +287,77 @@ docker-compose exec -T postgres-chatwoot psql -U postgres chatwoot < backup_chat
 docker-compose exec -T postgres-evolution psql -U postgres evolution < backup_evolution.sql
 ```
 
-### Remoção Completa (Purge)
+### Remoção (Purge)
 
-⚠️ **ATENÇÃO**: O script de purge remove **PERMANENTEMENTE** todos os dados!
+⚠️ **ATENÇÃO**: O script de purge remove **PERMANENTEMENTE** dados marcados com labels do projeto!
 
 ```bash
 ./scripts/purge.sh
 ```
 
-**O que o script de purge remove:**
-- ✅ Todos os containers Docker
-- ✅ Todos os volumes de dados
-- ✅ Todos os arquivos de configuração (.env)
-- ✅ Todos os logs
-- ✅ Todas as imagens Docker
-- ✅ Todas as redes Docker
-- ✅ Todos os diretórios de dados
-- ✅ Todos os arquivos temporários
+**O script oferece três opções:**
 
-**Confirmação dupla de segurança:**
-O script requer duas confirmações:
-1. Digite `PURGE` para confirmar
-2. Digite `CONFIRMO` para finalizar
+1. **Purge completa** - Remove TUDO marcado com labels do projeto
+2. **Purge seletiva** - Escolha o que remover:
+   - Apenas containers (mantém dados)
+   - Containers + Volumes (mantém imagens)
+   - Containers + Volumes + Redes
+   - Containers + Volumes + Redes + Imagens
+   - Tudo (purge completa)
+   - Apenas dados locais (diretórios)
+3. **Verificar recursos** - Mostra todos os recursos do projeto
+
+**Segurança:**
+- ✅ **Apenas recursos com labels** são removidos
+- ✅ **Não afeta** outras instâncias dos mesmos produtos
+- ✅ **Confirmação dupla** para purge completa
+- ✅ **Menu interativo** para controle granular
 
 **Após o purge:**
 ```bash
 # Para reinstalar limpo
-./scripts/deploy.sh
+./scripts/setup.sh
 ```
+
+### Sistema de Labels e Purge Seletivo
+
+O projeto utiliza um sistema de labels Docker para identificar recursos específicos, permitindo purge seletivo sem afetar outras instâncias dos mesmos produtos.
+
+#### Labels Utilizados
+
+Todos os recursos do projeto são marcados com labels específicos:
+- `whatsapp-automation-suite=true`: Identifica recursos do projeto
+- `whatsapp-automation-suite.project=<tipo>`: Categoria do recurso
+- `whatsapp-automation-suite.version=1.0`: Versão do projeto
+
+#### Purge Seletivo
+
+Para remoção seletiva de recursos, use o script de purge:
+
+```bash
+./scripts/purge.sh
+```
+
+E escolha a opção "Purge seletiva" no menu interativo.
+
+#### Verificar Recursos do Projeto
+
+```bash
+# Usando o script de purge (opção 3)
+./scripts/purge.sh
+
+# Ou comandos manuais
+docker ps -a --filter "label=whatsapp-automation-suite=true"
+docker volume ls --filter "label=whatsapp-automation-suite=true"
+docker network ls --filter "label=whatsapp-automation-suite=true"
+```
+
+#### Vantagens do Sistema de Labels
+
+- ✅ **Isolamento**: Não afeta outras instâncias dos mesmos produtos
+- ✅ **Segurança**: Evita remoção acidental de recursos de outros projetos
+- ✅ **Flexibilidade**: Permite remoção seletiva de recursos
+- ✅ **Rastreabilidade**: Identifica facilmente recursos do projeto
 
 ## 🐛 Solução de Problemas
 
